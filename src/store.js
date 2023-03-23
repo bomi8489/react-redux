@@ -1,38 +1,24 @@
-import {createStore} from "redux";
+import {
+    configureStore,
+    createSlice
+} from "@reduxjs/toolkit"
 
-const ADD = "ADD";
-const DELETE = "DELETE";
 
-const addToDo = (text) => {
-    return {
-        type: ADD,
-        text
-    };
-};
-
-const deleteToDo = id => {
-    return {
-        type: DELETE,
-        id: parseInt(id)
-    };
-};
-
-const reducer = (state = [], action) => {
-    switch(action.type) {
-        case ADD:
-            return [{text: action.text, id: Date.now()}, ...state];
-        case DELETE:
-            return state.filter(toDo => toDo.id !== action.id);
-        default:
-            return state;
+const toDos = createSlice({
+    name: 'toDosReducer',
+    initialState: [],
+    reducers: {
+        add: (state, action) => {
+            //mutaion을 하는것처럼 보이지만 reduxtookit은 immer 아래에서 동작하고 실제로는 새로운 배열을 리턴
+            state.push({text: action.payload, id: Date.now()})
+        },
+        //action에게 보내고 싶은 정보는 payload와 함께 보내진다
+        remove: (state, action) => state.filter(toDo => toDo.id !== action.payload)
     }
-}
+})
 
-const store = createStore(reducer);
+const store = configureStore({ reducer: toDos.reducer });
 
-export const actionCreators = {
-    addToDo,
-    deleteToDo
-}
+export const { add, remove } = toDos.action
 
 export default store;
